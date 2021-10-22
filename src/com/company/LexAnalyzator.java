@@ -25,25 +25,13 @@ public class LexAnalyzator {
                     pos++;
                     continue;
                 case '+':
-                    lexemes.add(new Lexeme(LexemeType.OP_OR,c));
-                    pos++;
-                    continue;
                 case 'v':
-                    lexemes.add(new Lexeme(LexemeType.OP_OR,c));
-                    pos++;
-                    continue;
                 case 'V':
-                    lexemes.add(new Lexeme(LexemeType.OP_OR,c));
-                    pos++;
-                    continue;
                 case '|':
                     lexemes.add(new Lexeme(LexemeType.OP_OR,c));
                     pos++;
                     continue;
                 case '*':
-                    lexemes.add(new Lexeme(LexemeType.OP_AND,c));
-                    pos++;
-                    continue;
                 case '&':
                     lexemes.add(new Lexeme(LexemeType.OP_AND,c));
                     pos++;
