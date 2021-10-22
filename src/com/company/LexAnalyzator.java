@@ -32,7 +32,19 @@ public class LexAnalyzator {
                     lexemes.add(new Lexeme(LexemeType.OP_OR,c));
                     pos++;
                     continue;
+                case 'V':
+                    lexemes.add(new Lexeme(LexemeType.OP_OR,c));
+                    pos++;
+                    continue;
+                case '|':
+                    lexemes.add(new Lexeme(LexemeType.OP_OR,c));
+                    pos++;
+                    continue;
                 case '*':
+                    lexemes.add(new Lexeme(LexemeType.OP_AND,c));
+                    pos++;
+                    continue;
+                case '&':
                     lexemes.add(new Lexeme(LexemeType.OP_AND,c));
                     pos++;
                     continue;
@@ -41,7 +53,8 @@ public class LexAnalyzator {
                     pos++;
                     continue;
                 default:
-                    if(c>=97&&c<=122||c>=129&&c<=154){
+                    //Таблица ASCII для больших и маленьких букв
+                    if(c>=97&&c<=122||c>=65&&c<=90){
                         lexemes.add(new Lexeme(LexemeType.OPERAND,c));
                         pos++;
                         setOfOperand.add(c);
@@ -79,8 +92,8 @@ public class LexAnalyzator {
             Lexeme lexeme = lexemeBuffer.next();
             switch (lexeme.getType()){
                 case OP_OR:
-                    boolean value1 =Operand(lexemeBuffer);
-                    value = value|| value1;
+                    boolean value1 = And(lexemeBuffer);
+                    value = value || value1;
                     break;
                 default:
                     lexemeBuffer.back();
@@ -109,21 +122,23 @@ public class LexAnalyzator {
             Lexeme lexeme = lexemeBuffer.next();
             switch (lexeme.getType()){
                 case OP_NOT:
-                    value = Operand(lexemeBuffer);
-                    value = !value;
+                    boolean value1 = Operand(lexemeBuffer);
+                    value = !value1;
                     break;
                 default:
+                    lexemeBuffer.back();
                     return value;
             }
         }
     }*/
     public boolean Operand(LexemeBuffer lexemeBuffer){
         Lexeme lexeme = lexemeBuffer.next();
+        boolean value;
         switch (lexeme.getType()){
             case OPERAND:
                 return lexeme.getValue().equals("1")?true:false;
             case LEFT_BRACKET:
-                boolean value = Expr(lexemeBuffer);
+                value = Expr(lexemeBuffer);
                 lexeme = lexemeBuffer.next();
                 if(lexeme.getType() != LexemeType.RIGHT_BRACKET){
                     throw new RuntimeException("Don't close bracket: " + lexeme.getValue() +
@@ -131,8 +146,8 @@ public class LexAnalyzator {
                 }
                 return value;
             case OP_NOT:
-                lexemeBuffer.back();
-                return false;
+                value = Operand(lexemeBuffer);
+                return !value;
 
             default:
                 throw new RuntimeException("Unexpected token: " + lexeme.getValue() +

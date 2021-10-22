@@ -15,6 +15,10 @@ public class LexemeBuffer {
     public void back(){
         pos--;
     }
+    public Lexeme getBack(){
+        int back = pos;
+        return lexemes.get(--back);
+    }
     public int getPos(){
         return pos;
     }
