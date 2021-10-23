@@ -104,21 +104,7 @@ public class LexAnalyzator {
             }
         }
     }
-    /*public boolean Not(LexemeBuffer lexemeBuffer){
-        boolean value = Operand(lexemeBuffer);
-        while (true){
-            Lexeme lexeme = lexemeBuffer.next();
-            switch (lexeme.getType()){
-                case OP_NOT:
-                    boolean value1 = Operand(lexemeBuffer);
-                    value = !value1;
-                    break;
-                default:
-                    lexemeBuffer.back();
-                    return value;
-            }
-        }
-    }*/
+
     public boolean Operand(LexemeBuffer lexemeBuffer){
         Lexeme lexeme = lexemeBuffer.next();
         boolean value;

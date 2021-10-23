@@ -7,7 +7,8 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) {
-        String str = "b+a";
+        String str = "b*!(a*g)+a*g+d*g";
+        List<String> packageList = new ArrayList<>();
 
         printTruthTable(str);
 
