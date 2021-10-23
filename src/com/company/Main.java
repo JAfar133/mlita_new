@@ -1,25 +1,27 @@
 package com.company;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) {
         StringBuilder sb = new StringBuilder();
-        String pkg1 = "!p+q+t";
-        String pkg2 = "p+(q*!h)*!p*t";
-        String pkg3 = "!p+q+h";
-        String out = "!q+h*t";
+        String pkg1 = "A->B";
+        String pkg2 = "B->C";
+        String pkg3 = "C->D";
+        String pkg4 = "E->!D";
+        String out1 = "A->!E";
+        String out2 = "A*E";
 
         List<String> packageList = new ArrayList<>();
-        packageList.add(pkg1); packageList.add(pkg2);packageList.add(pkg3);
-
+        List<String> outList = new ArrayList<>();
+        packageList.add(pkg1); packageList.add(pkg2);packageList.add(pkg3);packageList.add(pkg4);
+        outList.add(out1);outList.add(out2);
         //Считаем количество уникальных операндов
         for (String pkg:packageList)
             sb.append(pkg);
-        sb.append(out);
+        for (String out:outList)
+            sb.append(out);
         LexAnalyzator lexAnalyzator = new LexAnalyzator();
         lexAnalyzator.lexAnalyze(sb.toString());
         Set<Character> characterSet = lexAnalyzator.getSetOfOperand();
@@ -28,13 +30,12 @@ public class Main {
 
         List<List<String>> tableRowsList = getTableRowsList(n);
 
-        printTruthTable(tableRowsList,packageList,out,operandList);
+        printTruthTable(tableRowsList,packageList,outList,operandList);
 
     }
     private static List<List<String>> getTableRowsList(int n) {
         List<List<String>> tableRowsList = new ArrayList<>();
         int rows = (int) Math.pow(2,n);
-        int num = 0;
         for (int i=0; i<rows; i++) {
             List<String> row = new ArrayList<>();
             for (int j=n-1; j>=0; j--) {
@@ -43,56 +44,96 @@ public class Main {
                 row.add(String.valueOf(boolValue));
                 }
             tableRowsList.add(row);
-            num++;
             }
         return tableRowsList;
         }
         public static void printTruthTable(List<List<String>> tableRowsList,
                                            List<String> packageList,
-                                           String out,
+                                           List<String> outList,
                                            List<Character> operandList){
             List<Boolean> pkgsResult = new ArrayList<>();
-            boolean outResult;
+            List<Boolean> outsResult = new ArrayList<>();
+            Set<String> not_valid_outs = new TreeSet<>();
+            Map<String,String> nameOfOperandList = new HashMap<>();
             boolean valid = true;
+            System.out.print("Посылки:  ");
+            for (int i = 1;i<= packageList.size();i++) {
+                System.out.print("P"+i+"="+packageList.get(i-1)+", ");
+            }
+            System.out.println();
+            System.out.print("Выводы:  ");
+            for (int i = 1;i<= outList.size();i++) {
+                System.out.print("С"+i+"="+outList.get(i-1)+", ");
+            }
+            System.out.println();
+
+            System.out.print("n    ");
             for (Character OP: operandList) {
                 System.out.print(OP+" ");
             }
-            System.out.print(" ");
+            System.out.print("  ");
             for (int i = 1;i<= packageList.size();i++) {
-                System.out.print("C"+i+" ");
+                nameOfOperandList.put(packageList.get(i-1),"P"+i);
+                System.out.print("P"+i+"  ");
             }
-            System.out.print("F ");
+            System.out.print("P   ");
+            for (int i = 1;i<= outList.size();i++) {
+                nameOfOperandList.put(outList.get(i-1),"C"+i);
+                System.out.print("C"+i+"  ");
+            }
+
             System.out.println();
+            int count=0;
             for (List<String> opBoolList:tableRowsList) {
+                if(count<10)
+                    System.out.print(count+"  | ");
+                else System.out.print(count+" | ");
+                count++;
                 for (String op:opBoolList) {
                     System.out.print(op+" ");
                 }
-                System.out.print(" ");
+                System.out.print("| ");
                 for (String pkg:packageList) {
                     pkgsResult.add(getPkgOrOutResult(opBoolList,pkg,operandList) == "0" ? false:true);
-                    System.out.print(getPkgOrOutResult(opBoolList,pkg,operandList)+"  ");
+                    System.out.print(getPkgOrOutResult(opBoolList,pkg,operandList)+" | ");
                 }
-                    outResult = getPkgOrOutResult(opBoolList,out,operandList) == "0" ? false:true;
-                    System.out.print(getPkgOrOutResult(opBoolList,out,operandList)+"  ");
-
-                    if(!isValid(pkgsResult,outResult)){
+                System.out.print(getСonjunctionP(pkgsResult)?"1"+" | ":"0"+" | ");
+                List<String> notValidOut = new ArrayList<>();
+                for(String out:outList) {
+                    outsResult.add(getPkgOrOutResult(opBoolList, out, operandList) == "0" ? false : true);
+                    System.out.print(getPkgOrOutResult(opBoolList, out, operandList) + " | ");
+                    if(!isValid(getСonjunctionP(pkgsResult),getPkgOrOutResult(opBoolList, out, operandList).equals("1")?true:false)){
                         valid = false;
-                        System.out.print("<-- не валидное выражение");
+                        notValidOut.add(out);
                     }
+                }
+                if(!valid){
+                    System.out.print("<--Вывод(ы): ");
+
+                    for (String s:notValidOut) {
+                        not_valid_outs.add(nameOfOperandList.get(s));
+                        System.out.print(nameOfOperandList.get(s)+"=");
+                        System.out.print(s+" ");
+                    }
+                    System.out.print("не валидный(е)");
+                }
+                valid=true;
+                    outsResult = new ArrayList<>();
                     pkgsResult = new ArrayList<>();
                 System.out.println();
                 }
-            if(!valid)
-                System.out.println("Вывод не валидный");
-            else System.out.println("Вывод валидный");
+            if(not_valid_outs!=null)
+                System.out.println("Выводы: "+not_valid_outs+" не валидные");
             }
-
-        public static boolean isValid(List<Boolean>pkgs,boolean out){
-        int count =0;
+        public static boolean getСonjunctionP(List<Boolean>pkgs){
+            boolean pkges=true;
             for (Boolean b:pkgs) {
-                if(b) count++;
+                pkges = pkges&&b;
             }
-            if(count== pkgs.size()&&!out){
+            return pkges;
+        }
+        public static boolean isValid(boolean conP, boolean out){
+            if(conP&!out){
                 return false;
             }
             else return true;

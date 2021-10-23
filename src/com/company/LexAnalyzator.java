@@ -40,6 +40,20 @@ public class LexAnalyzator {
                     lexemes.add(new Lexeme(LexemeType.OP_NOT,c));
                     pos++;
                     continue;
+                case '@':
+                    lexemes.add(new Lexeme(LexemeType.OP_IMP,c));
+                    pos++;
+                    continue;
+                case '-':
+                    int currPos = pos;
+                    if(expText.charAt(++currPos)=='>'){
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(c).append('>');
+                        lexemes.add(new Lexeme(LexemeType.OP_IMP,sb.toString()));
+                        pos+=2;
+                        continue;
+                    }
+                    else throw new RuntimeException("Unexpected character: "+c);
                 default:
                     //Таблица ASCII для больших и маленьких букв
                     if(c>=97&&c<=122||c>=65&&c<=90){
@@ -70,9 +84,24 @@ public class LexAnalyzator {
         Lexeme lexeme = lexemeBuffer.next();
         if(lexeme.getType()!=LexemeType.EOF){
             lexemeBuffer.back();
-            return Or(lexemeBuffer);
+            return Impl(lexemeBuffer);
         }
         else return false;
+    }
+    public boolean Impl(LexemeBuffer lexemeBuffer){
+        boolean value = Or(lexemeBuffer);
+        while (true){
+            Lexeme lexeme = lexemeBuffer.next();
+            switch (lexeme.getType()){
+                case OP_IMP:
+                    boolean value1 = Or(lexemeBuffer);
+                    value = !value || value1;
+                    break;
+                default:
+                    lexemeBuffer.back();
+                    return value;
+            }
+        }
     }
     public boolean Or(LexemeBuffer lexemeBuffer){
         boolean value = And(lexemeBuffer);
