@@ -9,18 +9,19 @@ public class Main {
     public static void main(String[] args) {
         StringBuilder sb = new StringBuilder();
         String pkg1 = "!p+q+t";
-        String pkg2 = "!p+q+h";
-        String out = "!q+h";
+        String pkg2 = "p+(q*!h)*!p*t";
+        String pkg3 = "!p+q+h";
+        String out = "!q+h*t";
 
         List<String> packageList = new ArrayList<>();
-        packageList.add(pkg1); packageList.add(pkg2);
+        packageList.add(pkg1); packageList.add(pkg2);packageList.add(pkg3);
 
         //Считаем количество уникальных операндов
         for (String pkg:packageList)
             sb.append(pkg);
         sb.append(out);
         LexAnalyzator lexAnalyzator = new LexAnalyzator();
-        List<Lexeme> lexemes = lexAnalyzator.lexAnalyze(sb.toString());
+        lexAnalyzator.lexAnalyze(sb.toString());
         Set<Character> characterSet = lexAnalyzator.getSetOfOperand();
         List<Character> operandList = new ArrayList<>(characterSet);
         int n = characterSet.size();
@@ -78,6 +79,7 @@ public class Main {
                         valid = false;
                         System.out.print("<-- не валидное выражение");
                     }
+                    pkgsResult = new ArrayList<>();
                 System.out.println();
                 }
             if(!valid)
